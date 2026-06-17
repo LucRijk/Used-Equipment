@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAT Equipment — Competitor Intelligence</title>
+<style>
+  /* System fonts — no internet required */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --yellow:   #F5C400;
+    --black:    #111111;
+    --offwhite: #F2EFE9;
+    --mid:      #888;
+    --border:   #DEDBD4;
+    --card-bg:  #FAFAF7;
+    --blue:     #1A5FC4;
+    --red:      #C41A1A;
+    --green:    #1A7A3C;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--offwhite);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--black);
+    padding: 0 2rem;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: 3px solid var(--yellow);
+  }
+  .header-cat {
+    background: var(--yellow);
+    color: var(--black);
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: .04em;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+  }
+  .header-text { padding: 1rem 0; }
+  .header-title { color: #fff; font-size: 1rem; font-weight: 600; letter-spacing: .01em; }
+  .header-sub   { color: rgba(255,255,255,.45); font-size: .75rem; margin-top: 2px; font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace; }
+
+  /* ── Layout ── */
+  .main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* ── Category nav ── */
+  .cat-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-btn {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: .78rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #555;
+    transition: all .12s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .cat-btn:hover { border-color: var(--black); color: var(--black); }
+  .cat-btn.active { background: var(--black); border-color: var(--black); color: var(--yellow); }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: baseline;
+    gap: .75rem;
+  }
+  .section-title .fam-tag {
+    font-size: .7rem;
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+    background: var(--yellow);
+    color: var(--black);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    vertical-align: middle;
+  }
+
+  /* ── Size class grid ── */
+  .sc-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sc-row {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .sc-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1.5px solid transparent;
+    transition: background .1s;
+  }
+  .sc-head:hover { background: #fafaf7; }
+  .sc-row.open .sc-head { border-bottom-color: var(--border); background: #fafaf7; }
+
+  .sc-name {
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--black);
+  }
+  .sc-range {
+    font-size: .72rem;
+    color: var(--mid);
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+    background: var(--offwhite);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .sc-mfr-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    flex: 1;
+  }
+  .mfr-pill {
+    font-size: .7rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #F0EDE6;
+    color: #444;
+    white-space: nowrap;
+  }
+  .mfr-pill.tier-a { background: #111; color: #fff; }
+  .mfr-pill.tier-b { background: #E8F0FB; color: #1A5FC4; }
+  .sc-toggle {
+    font-size: .7rem;
+    color: var(--mid);
+    flex-shrink: 0;
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+  }
+
+  /* ── Expanded detail ── */
+  .sc-body { display: none; padding: 14px 16px; }
+  .sc-row.open .sc-body { display: block; }
+
+  .mfr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 8px;
+  }
+  .mfr-card {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 11px;
+    background: var(--card-bg);
+  }
+  .mfr-card.primary {
+    background: #FFFBEA;
+    border-color: #D4AF00;
+  }
+  .mfr-card-name {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #555;
+    margin-bottom: 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mfr-card.primary .mfr-card-name { color: #8B6800; }
+  .model-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .model-tag {
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: .68rem;
+    background: #EDEDEA;
+    color: #444;
+    padding: 2px 6px;
+    border-radius: 3px;
+    line-height: 1.5;
+  }
+
+  /* category section */
+  .category-section { display: none; }
+  .category-section.active { display: block; }
+
+  /* compact competitor count */
+  .sc-meta { display: flex; align-items: center; gap: 10px; }
+  .ccount {
+    font-size: .7rem;
+    font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+    color: var(--mid);
+    white-space: nowrap;
+  }
+  .ccount.low  { color: var(--green); }
+  .ccount.mid  { color: #B07000; }
+  .ccount.high { color: var(--red); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-cat">CAT</div>
+  <div class="header-text">
+    <div class="header-title">Competitor Intelligence — Equipment Cross-Reference</div>
+    <div class="header-sub">Real global OEM competitors per size class · Cyclica Used Equipment</div>
+  </div>
+</header>
+
+<main class="main">
+  <nav class="cat-nav" id="catNav"></nav>
+  <div id="sections"></div>
+</main>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+// Format: { family, classes: [{ sc, range, competitors: [{ name, tier, models[] }] }] }
+// Tier A = top global OEMs, Tier B = regional/growing brands, rest = standard
+// Built from the 57k-row cross-reference database, filtered to real global manufacturers
+
+const DATA = [
+  {
+    id: 'ttt',
+    family: 'Track Type Tractors',
+    label: 'Bulldozers',
+    classes: [
+      { sc: 'D3/D2', range: '85–105 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D37EX-24','D37PX-24','D39EX-24','D39PX-24','D39EXi-24','D39PXi-24'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['550K','650K','700K'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['850M','850N','1650M'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-9','TD-10'] },
+        { name: 'Shantui', tier: 'b', models: ['SD08','SD10','SD13'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 716','PR 726'] },
+      ]},
+      { sc: 'D4', range: '105–130 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D41EX-24','D41PX-24','D41EXi-24','D51EX-24','D51PX-24'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 726','PR 736','PR 736 LGP'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['750K','850K','850L'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['1150M','1150N'] },
+        { name: 'Shantui', tier: 'b', models: ['SD13','SD16','SD16E'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-14','TD-14E'] },
+        { name: 'Doosan / Develon', tier: 'b', models: ['DD80-7','DD100-7'] },
+        { name: 'Hyundai', tier: 'b', models: ['HD250-7','HD320-7'] },
+      ]},
+      { sc: 'D5', range: '130–160 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D51EX-24','D51PX-24','D61EX-24','D61PX-24','D61EXi-24'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 736','PR 746','PR 746 LGP','PR 756'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['1650M','1650N','2050M'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-15','TD-15N','TD-20H'] },
+        { name: 'Shantui', tier: 'b', models: ['SD16','SD22','SD22E'] },
+        { name: 'XCMG', tier: 'b', models: ['TY160','TY165'] },
+        { name: 'Liugong', tier: 'b', models: ['B160C','B160D'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['1050K','1050L'] },
+      ]},
+      { sc: 'D6 / XE / GC', range: '160–210 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D65EX-18','D65PX-18','D65EXi-18','D65WX-18','D65WXi-18'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 756','PR 766','PR 776','PR 776 LGP'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['1050K LGP','1650K','2050K'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['2050M','2050N'] },
+        { name: 'Shantui', tier: 'b', models: ['SD22','SD22E','SD32','SD32-5'] },
+        { name: 'XCMG', tier: 'b', models: ['TY165','TY220','TY220H'] },
+        { name: 'Liugong', tier: 'b', models: ['B170B','B200C','B230C'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-20H','TD-25H','TD-25M'] },
+        { name: 'Terex', tier: 'b', models: ['TD20E','TD25E'] },
+      ]},
+      { sc: 'D7 / R / E', range: '210–260 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D85EX-18','D85PX-18','D85EXi-18','D155AX-8','D155AXi-8'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 776','PR 786','PR 796'] },
+        { name: 'Shantui', tier: 'b', models: ['SD32','SD32-5','SD42-3'] },
+        { name: 'Liugong', tier: 'b', models: ['B230C','B260C'] },
+        { name: 'XCMG', tier: 'b', models: ['TY220','TY230','TY320'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-25H','TD-40H'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['2050M WTL'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['2050K','2050K WTL'] },
+        { name: 'SANY', tier: 'b', models: ['PD320Y-1','PD320YH'] },
+      ]},
+      { sc: 'D8 / GC / LRC', range: '260–360 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D155AX-8','D155AXi-8','D155WX-8','D275AX-5E0','D275AX-6'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 796','PR 836','PR 836 LGP'] },
+        { name: 'Shantui', tier: 'b', models: ['SD42-3','SD42E','SD52-5'] },
+        { name: 'Liugong', tier: 'b', models: ['B260C','B320D'] },
+        { name: 'XCMG', tier: 'b', models: ['TY320','TY320H'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-40H','TD-40E'] },
+        { name: 'Terex', tier: 'b', models: ['TA300D'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['2050K WTL'] },
+      ]},
+      { sc: 'D9 / LRC', range: '360–520 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D275AX-5','D275AX-6','D375A-8','D375Ai-8'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 836','PR 856'] },
+        { name: 'Shantui', tier: 'b', models: ['SD52-5','SD52E'] },
+        { name: 'XCMG', tier: 'b', models: ['TY400','TY420'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-50H'] },
+      ]},
+      { sc: 'D10', range: '520–650 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D375A-8','D375Ai-8','D475A-5E0','D475A-8'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 856','PR 876'] },
+        { name: 'Shantui', tier: 'b', models: ['SD52E','SD62-3'] },
+        { name: 'Dressta', tier: 'b', models: ['TD-50H','TD-50M'] },
+      ]},
+      { sc: 'D11', range: '650 HP & over', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D475A-8','D475ASD-8','D575A-3SD'] },
+        { name: 'Liebherr', tier: 'a', models: ['PR 876 Litronic'] },
+        { name: 'Shantui', tier: 'b', models: ['SD62-3','SD90-5'] },
+      ]},
+    ]
+  },
+  {
+    id: 'tex',
+    family: 'Track Excavators',
+    label: 'Track Excavators',
+    classes: [
+      { sc: '300.9', range: '0–1 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC01-1','PC10MR-3','PC15MR-5','PC18MR-8'] },
+        { name: 'Kubota', tier: 'a', models: ['K008-5','U10-5','U17-3α'] },
+        { name: 'Yanmar', tier: 'a', models: ['SV08','SV10','SV15'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK09SR','SK10SR','SK17SR'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX10U-6','ZX17U-6'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH09B','SH15B'] },
+        { name: 'JCB', tier: 'a', models: ['8008','8010','8014','8016'] },
+      ]},
+      { sc: '302.2 / 301.8 / 301.6', range: '1–2 t', competitors: [
+        { name: 'Kubota', tier: 'a', models: ['U17-3α','U20-6','U25-6'] },
+        { name: 'Yanmar', tier: 'a', models: ['SV17','SV22','SV26','ViO17'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX17U-6','ZX19U-6','ZX26U-6'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC18MR-8','PC26MR-11','PC30MR-5'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK17SR','SK20SR','SK25SR','SK27SR'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX17C','CX20C','CX27B'] },
+        { name: 'Bobcat', tier: 'a', models: ['E17','E19','E20','E26'] },
+        { name: 'JCB', tier: 'a', models: ['8016','8018','8025','8026'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC15E','EC20E','EC27E'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX17A','HX20A','R17Z-9','R25Z-9'] },
+      ]},
+      { sc: '302.7CR / 302.5 / 302.4', range: '2–3 t', competitors: [
+        { name: 'Kubota', tier: 'a', models: ['U25-6','U27-4','KX030-4','KX033-4'] },
+        { name: 'Yanmar', tier: 'a', models: ['ViO25-6','ViO27-6','SV26-6B','SV22'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC26MR-11','PC30MR-5','PC35MR-5'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK25SR','SK27SR','SK30SR','SK35SR-6'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX26U-6','ZX29U','ZX33U-6'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX27B','CX30B','CX33C'] },
+        { name: 'JCB', tier: 'a', models: ['8026','8030','8032','8035ZTS'] },
+        { name: 'Bobcat', tier: 'a', models: ['E26','E27','E32','E35'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC27E','EC30E','EC35E'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX25A','R28Z-9','R35Z-9'] },
+      ]},
+      { sc: '304CR / 303.5CR', range: '3–4 t', competitors: [
+        { name: 'Kubota', tier: 'a', models: ['KX033-4','KX040-4','U35-6','U36-4'] },
+        { name: 'Yanmar', tier: 'a', models: ['ViO35-6B','ViO38-6B','SV40-2B'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX33U-6','ZX38U-5','ZX40U-5'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC35MR-5','PC40MR-5','PC45MR-5'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK35SR-6','SK45SR-6','SK55SR-6'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX36B','CX40B','CX42'] },
+        { name: 'JCB', tier: 'a', models: ['8040ZTS','8042','8045'] },
+        { name: 'Bobcat', tier: 'a', models: ['E35','E37','E38','E42'] },
+        { name: 'Volvo CE', tier: 'a', models: ['ECR35E','ECR40E','EC40E'] },
+        { name: 'Hyundai', tier: 'a', models: ['R35Z-9','R55-9','HX35A'] },
+      ]},
+      { sc: '305CR / 304.5CR', range: '4–5 t', competitors: [
+        { name: 'Kubota', tier: 'a', models: ['KX040-4','KX042-4','U48-5','U50-6'] },
+        { name: 'Yanmar', tier: 'a', models: ['ViO50-6B','SV57','SV60'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX48U-5','ZX50U-5','ZX55U-5'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC45MR-5','PC50MR-5','PC55MR-5'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK45SR-6','SK55SR-6'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX57C','CX60C'] },
+        { name: 'JCB', tier: 'a', models: ['51R-1','55Z-1','48Z-1'] },
+        { name: 'Bobcat', tier: 'a', models: ['E45','E50','E55'] },
+        { name: 'Volvo CE', tier: 'a', models: ['ECR50E','EC55C'] },
+        { name: 'Hyundai', tier: 'a', models: ['R55-9','R55W-9','HX55A'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX53-9C','DX62R-3'] },
+      ]},
+      { sc: '306 / 305.5 / 305SR', range: '5–6 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC55MR-5','PC58UU-5','PC60-8','PC70LC-10M0'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX55U-5','ZX60-6','ZX65USB-6'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK55SR-6','SK60-10','SK65-7'] },
+        { name: 'Yanmar', tier: 'a', models: ['SV60','SV65-2B','ViO55-6B'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX62R-3','DX63-3'] },
+        { name: 'Hyundai', tier: 'a', models: ['R55-9S','R60CR-9'] },
+        { name: 'JCB', tier: 'a', models: ['55Z-1','57C-1','65R-1'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC60E','ECR58D'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX60C','CX75D','E60C'] },
+        { name: 'XCMG', tier: 'b', models: ['XE60D','XE65C','XE65D'] },
+        { name: 'SANY', tier: 'b', models: ['SY60C','SY65C','SY75C'] },
+      ]},
+      { sc: '308CR / 308 / 307', range: '6–8 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC70-8','PC78UU-8','PC78US-10M0','PC88MR-10'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX70-6','ZX75US-6','ZX80SB','ZX85USB-6'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK70SR-7','SK75SR-7','SK80MSR','SK85CS-9'] },
+        { name: 'Yanmar', tier: 'a', models: ['SV80','ViO80-2B','ViIO80'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX75-9C','DX80R-3','DX85R-3'] },
+        { name: 'Hyundai', tier: 'a', models: ['R75-9','R80CR-9','HX80A'] },
+        { name: 'JCB', tier: 'a', models: ['8060','8065','8080ZTS'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX75D','CX80C','CX80SR'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC75D','ECR88D','EC80E'] },
+        { name: 'XCMG', tier: 'b', models: ['XE80C','XE80D','XE80U'] },
+        { name: 'SANY', tier: 'b', models: ['SY75C','SY80C','SY95W'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH75X','SH80X'] },
+      ]},
+      { sc: '310 / 309CR / 308CRSB', range: '8–10 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX95US-6','ZX100M-6','ZX110-6'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK100-4','SK115SRDZ-3','SK135SR-3'] },
+        { name: 'Yanmar', tier: 'a', models: ['SV100-2B','ViO110'] },
+        { name: 'JCB', tier: 'a', models: ['85Z-1','86C-1','88P','91Z'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX80SR','CX100D','E95B'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH95X','SH100B3','SH120-6'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC88MR-10','PC95R-2'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['85G','95G','100G'] },
+        { name: 'XCMG', tier: 'b', models: ['XE90D','XE100C','XE100D'] },
+        { name: 'SANY', tier: 'b', models: ['SY95C','SY100C','SY95W'] },
+      ]},
+      { sc: '313 / 311', range: '10–14 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX120-6','ZX130-6','ZX130LCN-6','ZX135US-6'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC110-8M0','PC120-8','PC130-8M0','PC138US-11','PC138USLC-11'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK120-7','SK125SR','SK130-7','SK135SR-3'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH120-6','SH135X','SH135XB'] },
+        { name: 'Hyundai', tier: 'a', models: ['R110-9','R130-9','HX130A','HX130LCR'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX130D','CX130E','E130'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['130G','130P-Tier'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC120E','EC130E','EC140E'] },
+        { name: 'JCB', tier: 'a', models: ['131X','135X','140X','140XLC'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX130LC-7','DX140LC-7','DX140LCR-7'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 910 Compact','R 912 G8','R 914 Compact'] },
+        { name: 'XCMG', tier: 'b', models: ['XE130D','XE135C','XE140D'] },
+        { name: 'SANY', tier: 'b', models: ['SY125C','SY135C'] },
+      ]},
+      { sc: '315 / 315GC', range: '14–16 t', competitors: [
+        { name: 'Hyundai', tier: 'a', models: ['R145LCR-9','HX145LCR','R150LC-9'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK140LC-10','SK150LC-10','SK155SR-2'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC138USLC-11','PC160LC-8','PC170LC-11'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX160D','CX160E','E160C'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX145X','ZX160LC-6','ZX180LC-6'] },
+        { name: 'Volvo CE', tier: 'a', models: ['ECR145E','EC160E','EC160EL'] },
+        { name: 'JCB', tier: 'a', models: ['145XLC','150X','155XLC'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX140LC-7','DX160LC-7'] },
+        { name: 'Kato', tier: 'b', models: ['HD1430R','HD1500-7'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 916 G8','R 918 G8'] },
+        { name: 'XCMG', tier: 'b', models: ['XE150D','XE155C','XE160D'] },
+        { name: 'SANY', tier: 'b', models: ['SY155C','SY155H'] },
+      ]},
+      { sc: '318 / 317 / 317GC', range: '16–19 t', competitors: [
+        { name: 'Hyundai', tier: 'a', models: ['R170LC-9','R180LC-9','HX170A','HX180A'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX180LC-6','ZX200-6','ZX180-6'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX180E','CX180D','E180C'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC170LC-11','PC180LC-8','PC200-10M0'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK180LC-11','SK200-10','SK190DLC-10'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC180E','EC200D','EC200E'] },
+        { name: 'JCB', tier: 'a', models: ['180X','185X','190XLC','195W'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX170LC-7','DX180LC-7','DX190W-7'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 918 G8','R 920 G8','R 922 G8'] },
+        { name: 'XCMG', tier: 'b', models: ['XE175D','XE180D'] },
+        { name: 'SANY', tier: 'b', models: ['SY175C','SY195C'] },
+      ]},
+      { sc: '320 / N / GC', range: '19–21 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC200-10M0','PC200LC-8','PC210-10M0','PC210LC-11','PC200i-10','HB205-2'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX200-6','ZX200LC-6','ZX210H-6','ZX210LC-6','ZX200-7'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK200-10','SK200NLC-10','SK200SR-3','SK210LC-11'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX200A','HX210A','HX215LCR','R215-9','R220LC-9S'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX210E','CX210D','E215C'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC200E','EC200D','EC205','EC210E'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 912 G8','R 914 G8','R 920 G8'] },
+        { name: 'JCB', tier: 'a', models: ['205X','215X','220X LC','220XLC'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX200A-7','DX200LC-7','DX215LCA-7'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['210G LC','210P-Tier','200G LC'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH200-7','SH210-7','SH210LC-7'] },
+        { name: 'XCMG', tier: 'b', models: ['XE200D','XE200E','XE215C'] },
+        { name: 'SANY', tier: 'b', models: ['SY200C','SY215C','SY200H'] },
+        { name: 'Liugong', tier: 'b', models: ['CLG922E','CLG925E'] },
+      ]},
+      { sc: '325 / 323GC / 323', range: '21–24 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC220-10M0','PC220LC-8','PC228US-11','PC228USLC-11','PC220i-11'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX225US-6','ZX225USRLC-6','ZX230LC-6','ZX240-6','ZX240LC-7'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK210LC-11','SK220NLC-10','SK225SRD-5','SK260LC-11'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX220A','HX235LCR','R220LC-9S','R235LCR-9'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC220E','EC230E','EC235E','EC240EL'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX220D','CX235E','CX240ELC','E235C'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX225LC-7','DX235LCR-7','DX255LC-7'] },
+        { name: 'JCB', tier: 'a', models: ['220X','220XLC','235XLC','NXT220XLCM'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 920 G8','R 922 G8','R 924 G8'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['220G LC','220P-Tier','245G LC'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH220-7','SH225X-6','SH235X'] },
+        { name: 'XCMG', tier: 'b', models: ['XE215C','XE220D','XE235D'] },
+        { name: 'SANY', tier: 'b', models: ['SY215C','SY225C','SY235C'] },
+      ]},
+      { sc: '326 / GC', range: '24–28 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC240LC-11','PC270-10M0','PC270LC-10M0','PC240NLC-11'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX250H-6','ZX250LC-6','ZX270LC-6','ZX280LC-6'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK250NLC-10','SK260LC-11','SK270SRLC-3','SK290LC-11'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX250A','HX260L','R260LC-9S','R265LCR-9'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC250EL','EC260E','EC265E','EC280E'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 924 G8','R 926 G8','R 930 G8'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX250ELC','CX260ELC','CX290ELC'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX255LC-7','DX255NLC-7','DX260LC-7'] },
+        { name: 'JCB', tier: 'a', models: ['245XLC','245X','255XLC'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['250G LC','270G LC'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH260-7','SH265X-6'] },
+        { name: 'XCMG', tier: 'b', models: ['XE250D','XE265C','XE270D'] },
+        { name: 'SANY', tier: 'b', models: ['SY255C','SY265C'] },
+      ]},
+      { sc: '335 / 330 / 330GC', range: '28–33 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX300LC-6','ZX330LC-6','ZX330-6','ZX330LCH-6'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX300A','HX330A','R300LC-9S','HX305LCR'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC300-8M0','PC290LC-11','PC300LC-8M0','PC300NLC-8'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC300EL','EC300E','EC350E'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK290LC-11','SK330LC-7','SK350LC-10'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX300ELC','CX300E','CX350C'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 930 G8','R 934 G8','R 936 G8'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX300LC-7','DX305LC-7','DX340LC-7'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['290G LC','300G LC','330P-Tier'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH300-7','SH330HD-7','SH330LC-7'] },
+        { name: 'XCMG', tier: 'b', models: ['XE305D','XE335C','XE335D'] },
+        { name: 'SANY', tier: 'b', models: ['SY305C','SY335C','SY365H'] },
+      ]},
+      { sc: '340 / 336 / 336GC', range: '33–40 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX350LC-6','ZX360LC-6','ZX370MTH-6','ZX380LC-7'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC350-10M0','PC360LC-11','PC360NLC-11','PC360i-11'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX350A','HX380A','R355LC-9S','R380LC-9S'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK330LC-7','SK380SRLC','SK400LC-11'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC350EL','EC380E','EC380EL'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 934 G8','R 936 G8','R 944 G8'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX340LC-7','DX350LC-7','DX380LC-7'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX350C','CX370ELC','CX380ELC'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['345G LC','370P-Tier','380G LC'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH350HD-7','SH360HD-7','SH380HD-7'] },
+        { name: 'XCMG', tier: 'b', models: ['XE335C','XE370D','XE400D'] },
+        { name: 'SANY', tier: 'b', models: ['SY365C','SY365H','SY415C'] },
+      ]},
+      { sc: '352 / 350 / 349', range: '40–50 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC450LC-8','PC390LC-11','PC450-8','PC490LC-11'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX390LC-6','ZX470LC-6','ZX490LCH-6'] },
+        { name: 'Hyundai', tier: 'a', models: ['HX430A','R430LC-9S','HX480L'] },
+        { name: 'Kobelco', tier: 'a', models: ['SK400LC-10','SK460LC-10','SK500LC-10'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 944 G8','R 946 G8','R 950 G8'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC380EL','EC480EL','EC480E'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX420LC-7','DX490LC-7'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['CX490ELC','CX500ELC'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['410G LC','450P-Tier'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH430HD-7','SH460HD-7'] },
+        { name: 'XCMG', tier: 'b', models: ['XE400D','XE470D','XE490DK'] },
+        { name: 'SANY', tier: 'b', models: ['SY415C','SY465C','SY485H'] },
+      ]},
+      { sc: '365C', range: '50–66 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX530LC-6','ZX530LCH-6','ZX650LC-7','ZX650H-7'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC550LC-11','PC600LC-8','PC650LC-8'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX530LC-7','DX570LC-7'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 956 G8','R 960 G8','R 964 G8'] },
+        { name: 'Hyundai', tier: 'a', models: ['R520LC-9S','HX520A','R550LC-9S'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC550EL','EC650EL'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['470G LC','500G LC'] },
+        { name: 'XCMG', tier: 'b', models: ['XE530DK','XE550DK','XE650DK'] },
+        { name: 'SANY', tier: 'b', models: ['SY550H','SY650H'] },
+      ]},
+      { sc: '374', range: '66–80 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['PC700LC-11','PC750LC-8','PC800LC-8','PC850LC-8'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX690LCH-7','ZX690LC-7','ZX750LC-7','ZX870LC-7'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 964 G8','R 970 SME','R 974 G8'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC750EL','EC750E'] },
+        { name: 'XCMG', tier: 'b', models: ['XE700DK','XE750DK'] },
+        { name: 'SANY', tier: 'b', models: ['SY750H','SY850H'] },
+      ]},
+      { sc: '395 / 390 / 385FS', range: '80–100 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX870LC-7','ZX890LCH-7','ZX890H-7','ZX1000K-3'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC800LC-8','PC850LC-8','PC1250SP-8','PC1250-8'] },
+        { name: 'Hyundai', tier: 'a', models: ['R800LC-9S','HX900L','R1000LC-9'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 974 G8','R 980 SME','R 984 G8'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EC950F','EC950EL'] },
+        { name: 'SANY', tier: 'b', models: ['SY850H','SY980H','SY1000H'] },
+        { name: 'XCMG', tier: 'b', models: ['XE900DK','XE950DK'] },
+        { name: 'Sumitomo', tier: 'b', models: ['SH800HD-7','SH1000HD-5'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['870G LC'] },
+      ]},
+      { sc: '3101 (over 100 t)', range: '100–120 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['EX1200-7','EX1900-6','EX2600-7'] },
+        { name: 'Komatsu', tier: 'a', models: ['PC1250-8','PC1250SP-8','PC2000-11'] },
+        { name: 'Liebherr', tier: 'a', models: ['R 9100','R 9150','R 9200'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['870G LC','950G LC'] },
+        { name: 'Hyundai', tier: 'a', models: ['R1200-9','HX1200L'] },
+        { name: 'SANY', tier: 'b', models: ['SY1250H','SY1600H'] },
+      ]},
+    ]
+  },
+  {
+    id: 'adt',
+    family: 'Articulated Trucks',
+    label: 'Articulated Trucks',
+    classes: [
+      { sc: '725', range: 'up to 26 t', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['A25G','A25H','A30G','A30H'] },
+        { name: 'Bell Equipment', tier: 'a', models: ['B20E','B25E'] },
+        { name: 'Hydrema', tier: 'b', models: ['912F','912HB','922E'] },
+        { name: 'Moxy Trucks', tier: 'b', models: ['MT26','MT30'] },
+        { name: 'Terex', tier: 'b', models: ['TA230','TA300'] },
+        { name: 'JCB', tier: 'a', models: ['722','726'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['260E','310E'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['340B'] },
+        { name: 'Hitachi', tier: 'a', models: ['AH250-3','AH300-3'] },
+      ]},
+      { sc: '735 / 730', range: '26–35 t', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['A30G','A30H','A35G','A35H'] },
+        { name: 'Bell Equipment', tier: 'a', models: ['B30E','B35E'] },
+        { name: 'Komatsu', tier: 'a', models: ['HM300-5','HM350-3'] },
+        { name: 'Moxy Trucks', tier: 'b', models: ['MT30','MT31','MT35'] },
+        { name: 'Terex', tier: 'b', models: ['TA300','TA350'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['370E','410E','460E'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['340B','340','380'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DA30-5','DA40-5'] },
+        { name: 'Liebherr', tier: 'a', models: ['TA230 Litronic'] },
+        { name: 'Hitachi', tier: 'a', models: ['AH300-3','AH350-3'] },
+      ]},
+      { sc: '740', range: '35–41 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['HM400-5','HM400-3M0'] },
+        { name: 'Volvo CE', tier: 'a', models: ['A35G','A35H','A40G','A40H'] },
+        { name: 'Bell Equipment', tier: 'a', models: ['B40E','B45E'] },
+        { name: 'Moxy Trucks', tier: 'b', models: ['MT36','MT40'] },
+        { name: 'Terex', tier: 'b', models: ['TA400'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['460E','510E'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DA40-5'] },
+        { name: 'Hitachi', tier: 'a', models: ['AH400-3','AH500-3'] },
+      ]},
+      { sc: '760 / 745', range: '41 t & over', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['A40G','A40H','A45G','A60H'] },
+        { name: 'Bell Equipment', tier: 'a', models: ['B45E','B50E','B60E'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['460E','510E','710K'] },
+        { name: 'Komatsu', tier: 'a', models: ['HM400-5'] },
+        { name: 'Terex', tier: 'b', models: ['TA400'] },
+        { name: 'Hyundai', tier: 'b', models: ['HA45C','HA50C'] },
+      ]},
+    ]
+  },
+  {
+    id: 'oht',
+    family: 'Off Highway Trucks',
+    label: 'Off Highway (Rigid) Trucks',
+    classes: [
+      { sc: '773 / 772 / 770', range: 'up to 55 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['HD325-8','HD405-8','HD465-7R','HD465-8'] },
+        { name: 'Terex', tier: 'b', models: ['TR45','TR50','TR60','TR70'] },
+        { name: 'Volvo CE', tier: 'a', models: ['R45D','R60D','R70D'] },
+        { name: 'BELAZ', tier: 'b', models: ['7547','7547A','7548'] },
+        { name: 'Hitachi', tier: 'a', models: ['EH3000AC-3','EH1700-3','EH2000-3'] },
+        { name: 'SANY', tier: 'b', models: ['SRT45','SRT55','SRT65'] },
+        { name: 'XCMG', tier: 'b', models: ['XDE40','XDE55','XDE60'] },
+      ]},
+      { sc: '775', range: '55–75 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['HD605-8','HD605-7','HD785-7R'] },
+        { name: 'Volvo CE', tier: 'a', models: ['R70D','R100E'] },
+        { name: 'Terex', tier: 'b', models: ['TR70','TR100'] },
+        { name: 'Hitachi', tier: 'a', models: ['EH3000AC-3','EH3500AC-3'] },
+        { name: 'XCMG', tier: 'b', models: ['XDE60','XDE80','XDE100'] },
+        { name: 'SANY', tier: 'b', models: ['SRT65','SRT95'] },
+      ]},
+      { sc: '777', range: '75–120 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['HD785-7','HD785-8','HD985-5'] },
+        { name: 'Terex', tier: 'b', models: ['TR100','MT4400','MT4400AC'] },
+        { name: 'Volvo CE', tier: 'a', models: ['R100E'] },
+        { name: 'BELAZ', tier: 'b', models: ['75131','75132','7513A'] },
+        { name: 'XCMG', tier: 'b', models: ['XDE100','XDE120'] },
+        { name: 'Hitachi', tier: 'a', models: ['EH4000AC-3','EH3500AC-3'] },
+        { name: 'SANY', tier: 'b', models: ['SRT95','SRT155'] },
+        { name: 'Liebherr', tier: 'a', models: ['T 264','T 274'] },
+      ]},
+      { sc: '789 / 785', range: '120–200 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['HD985-5','HD1500-8','930E-5'] },
+        { name: 'Terex', tier: 'b', models: ['MT5500','MT5500AC'] },
+        { name: 'Volvo CE', tier: 'a', models: ['R100E'] },
+        { name: 'BELAZ', tier: 'b', models: ['75145','75306','7514'] },
+        { name: 'Hitachi', tier: 'a', models: ['EH4000AC-3','EH5000AC-3'] },
+        { name: 'Liebherr', tier: 'a', models: ['T 274','T 284'] },
+        { name: 'XCMG', tier: 'b', models: ['XDE150','XDE170'] },
+      ]},
+      { sc: '793', range: '200–275 t', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['930E-5','960E-2K','960E-2'] },
+        { name: 'Terex', tier: 'b', models: ['MT6300AC'] },
+        { name: 'BELAZ', tier: 'b', models: ['75303','75306','75453'] },
+        { name: 'Hitachi', tier: 'a', models: ['EH5000AC-3'] },
+        { name: 'Volvo CE', tier: 'a', models: ['R100E'] },
+        { name: 'Liebherr', tier: 'a', models: ['T 284','T 264'] },
+        { name: 'XCMG', tier: 'b', models: ['XDE240','XDE300'] },
+      ]},
+      { sc: '797 / 796 / 795', range: '275 t & over', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['960E-2K','980E-5','960E-2'] },
+        { name: 'Liebherr', tier: 'a', models: ['T 284','T 274'] },
+        { name: 'BELAZ', tier: 'b', models: ['75710','75307','75601'] },
+        { name: 'Hitachi', tier: 'a', models: ['EH5000AC-3'] },
+        { name: 'Komatsu Mining', tier: 'a', models: ['AHS (autonomous)'] },
+      ]},
+    ]
+  },
+  {
+    id: 'wl',
+    family: 'Wheel Loaders',
+    label: 'Wheel Loaders',
+    classes: [
+      { sc: '904 / 902 / 901', range: 'Class 5–6 (compact)', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['WA80-8','WA100M-8','WA150-8'] },
+        { name: 'Kubota', tier: 'a', models: ['R085','R105','R520','R630'] },
+        { name: 'Yanmar', tier: 'a', models: ['V100','V120','V80'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['50Z7','65Z7','80Z7'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L25H','L28H','L30GS'] },
+        { name: 'JCB', tier: 'a', models: ['403','406','407','409'] },
+        { name: 'Wacker Neuson', tier: 'b', models: ['WL20','WL28','WL32'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['321F','321G','321E'] },
+      ]},
+      { sc: '907 / 906', range: 'Class 7–8 (small)', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['L60H','L60F','L70H','L70F'] },
+        { name: 'Komatsu', tier: 'a', models: ['WA200-8','WA250-8','WA270-8'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['621G','721G','621F'] },
+        { name: 'JCB', tier: 'a', models: ['416','426','427','436E'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['444K','524K','544K'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZW180-6','ZW180PL-6'] },
+        { name: 'Kobelco', tier: 'b', models: ['LK300A-3','LK400A-3'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 506 Compact','L 507 Stereo'] },
+      ]},
+      { sc: '920 / 918', range: 'Class 12', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['WA320-8','WA320PZ-8','WA380-8'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['821G','821F','821H','721H'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L90H','L90F','L110H'] },
+        { name: 'JCB', tier: 'a', models: ['436E T4','457','456HT'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL940TM','HL940','HL955'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 514','L 516','L 518'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL300-5','DL300A-5'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['90Z7','95Z7'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZW250-6','ZW250PL-6'] },
+        { name: 'XCMG', tier: 'b', models: ['LW400KN','LW500KN'] },
+      ]},
+      { sc: '930', range: 'Class 14 (mid)', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['WA430-8','WA470-8','WA480-8'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL960','HL960TM','HL975'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L110H','L120H','L120F'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['644K','644L','624K'] },
+        { name: 'JCB', tier: 'a', models: ['457','457ZX','457HT','457 TC'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 526','L 528','L 550'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['821H','921H','1021F'] },
+        { name: 'XCMG', tier: 'b', models: ['LW500KN','LW600KN'] },
+        { name: 'SANY', tier: 'b', models: ['SW405K','SW405KN'] },
+        { name: 'Liugong', tier: 'b', models: ['856H','856MAX','862H'] },
+      ]},
+      { sc: '938', range: 'Class 15', competitors: [
+        { name: 'Case / New Holland', tier: 'a', models: ['921H','1021G','1021F'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL975','HL980'] },
+        { name: 'Komatsu', tier: 'a', models: ['WA470-8','WA480-8'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['90Z7','95Z7','115Z7'] },
+        { name: 'JCB', tier: 'a', models: ['457','457 TC','457ZX'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL420-5','DL420A-5','DL380-5'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['724K','724L'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZW310-6','ZW310PL-6'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L120H','L150H'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 550','L 556 XPower'] },
+      ]},
+      { sc: '950 / GC', range: 'Class 16', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['L150H','L150F','L180H'] },
+        { name: 'Komatsu', tier: 'a', models: ['WA500-8','WA500PZ-8','WA500-7'] },
+        { name: 'Liugong', tier: 'b', models: ['856H','862H','870H'] },
+        { name: 'XCMG', tier: 'b', models: ['LW600KN','LW700KN'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL420-5','DL450-5','DL500-5'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL980','HL985'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['1021H','1121G'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 556 XPower','L 566 XPower','L 576 XPower'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['744K','744L','844K'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['115Z7','115ZV-2'] },
+      ]},
+      { sc: '962 / 966GC', range: 'Class 17–18', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['WA500-8','WA500-7','WA480-8'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L180H','L180F','L200H'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL500-5','DL550-5'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['115ZV-2','115Z7'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL985','HL990'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 576 XPower','L 580 XPower'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['1121G','1121H'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZW370-6','ZW370PL-6'] },
+        { name: 'JCB', tier: 'a', models: ['457HT','457 TC'] },
+        { name: 'XCMG', tier: 'b', models: ['LW800KN','LW900KN'] },
+        { name: 'SANY', tier: 'b', models: ['SW655K','SW655KN','SW655H'] },
+      ]},
+      { sc: '972 / 972XE', range: 'Class 19', competitors: [
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['115ZV-2','120Z7','145Z7'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L200H','L220H'] },
+        { name: 'Komatsu', tier: 'a', models: ['WA600-8','WA500-8'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL990','HL990TM'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 580 XPower','L 586 XPower'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL550-5','DL580-5'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZW370-6','ZW370PL-6'] },
+        { name: 'Liugong', tier: 'b', models: ['890H','892H'] },
+        { name: 'SANY', tier: 'b', models: ['SW805K','SW805KN'] },
+        { name: 'XCMG', tier: 'b', models: ['LW900KN','LW1100KN'] },
+      ]},
+      { sc: '980 / 980XE', range: 'Class 20', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['WA600-8','WA600-7','WA600-6'] },
+        { name: 'Hyundai', tier: 'a', models: ['HL990TM-9','HL990-9S'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL580-5','DL600-5'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L220H','L220F'] },
+        { name: 'Liebherr', tier: 'a', models: ['L 586 XPower','L 586 2plus2'] },
+        { name: 'Terex', tier: 'b', models: ['TL210','TL260'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZW550-6','ZW550PL-6'] },
+        { name: 'XCMG', tier: 'b', models: ['LW1100KN'] },
+        { name: 'SANY', tier: 'b', models: ['SW1100K','SW1100KN'] },
+      ]},
+      { sc: '982 / 982XE', range: 'Class 34 (large)', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['L260H','L250H','L350H'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['145ZV-2','210ZV-2'] },
+        { name: 'Komatsu', tier: 'a', models: ['WA800-4','WA700-3','WA700-6'] },
+        { name: 'Liebherr', tier: 'a', models: ['LR 621B','LR 632B','LR 634 G7'] },
+        { name: 'Terex', tier: 'b', models: ['TL260','TL360'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DL600-5'] },
+        { name: 'XCMG', tier: 'b', models: ['LW1100KN','LW1200KN'] },
+      ]},
+      { sc: '994 / 992 / 990 / 988', range: 'Class 35 (mining)', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['WA900-8','WA1200-6','WA800-4','WA900-3'] },
+        { name: 'Volvo CE', tier: 'a', models: ['L350H','L350F'] },
+        { name: 'Liebherr', tier: 'a', models: ['LR 634 G7','LR 636 G7','LR 624 B'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['210ZV-2','380ZV-2'] },
+        { name: 'XCMG', tier: 'b', models: ['LW1200KN','LW1500KN'] },
+        { name: 'SANY', tier: 'b', models: ['SW2200K','SW2200KN'] },
+      ]},
+    ]
+  },
+  {
+    id: 'mg',
+    family: 'Motor Graders',
+    label: 'Motor Graders',
+    classes: [
+      { sc: '120 / M / GC', range: 'up to 170 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['GD511A-1','GD555-5','GD555-7A','GD655-7A'] },
+        { name: 'Volvo CE', tier: 'a', models: ['G930B','G940B','G946B','G960B'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['670G','670GP','772GP'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['845B','845C','865B','865C'] },
+        { name: 'XCMG', tier: 'b', models: ['GR165','GR165A','GR180'] },
+        { name: 'SANY', tier: 'b', models: ['SMG160H','SMG200H'] },
+        { name: 'Liugong', tier: 'b', models: ['CLG418A','CLG418B','CLG420'] },
+        { name: 'Champion', tier: 'b', models: ['720A','720B','740A','740VHP'] },
+        { name: 'Shantui', tier: 'b', models: ['SG16','SG18','SG21'] },
+      ]},
+      { sc: '140 / 140GC / M2', range: '170–200 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['GD655-7A','GD675-5','GD675-7A'] },
+        { name: 'Volvo CE', tier: 'a', models: ['G970B','G976B','G990B'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['772G','772GP','870G'] },
+        { name: 'XCMG', tier: 'b', models: ['GR200','GR215','GR230'] },
+        { name: 'SANY', tier: 'b', models: ['SMG200H','SMG220H'] },
+        { name: 'Liugong', tier: 'b', models: ['CLG4200','CLG4215','CLG4220'] },
+        { name: 'Shantui', tier: 'b', models: ['SG21','SG24'] },
+        { name: 'Champion', tier: 'b', models: ['780A','780VHP'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['885B','885C'] },
+      ]},
+      { sc: '14M / 16M', range: '200–300 HP', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['GD825A-2','GD825A-EO'] },
+        { name: 'Volvo CE', tier: 'a', models: ['G990B','G996B'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['870G','872G','872GP'] },
+        { name: 'XCMG', tier: 'b', models: ['GR260','GR280','GR300'] },
+        { name: 'SANY', tier: 'b', models: ['SMG260H','SMG300H'] },
+        { name: 'Liugong', tier: 'b', models: ['CLG4230','CLG4260'] },
+      ]},
+      { sc: '18M / 24M', range: '300 HP & over', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['GD1000-2','GD825A-2'] },
+        { name: 'Deere & Co.', tier: 'a', models: ['1070G','1070GP'] },
+        { name: 'Volvo CE', tier: 'a', models: ['G996B'] },
+        { name: 'XCMG', tier: 'b', models: ['GR300','GR360','GR400'] },
+        { name: 'SANY', tier: 'b', models: ['SMG300H','SMG360H'] },
+      ]},
+    ]
+  },
+  {
+    id: 'wex',
+    family: 'Wheel Excavators',
+    label: 'Wheel Excavators',
+    classes: [
+      { sc: 'M309 / M306', range: 'up to 11 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZAXIS75W-6','ZX80W-6','ZX85W-6'] },
+        { name: 'Komatsu', tier: 'a', models: ['PW98MR-8','PW118MR-11'] },
+        { name: 'Yanmar', tier: 'a', models: ['B50W','B75W'] },
+        { name: 'Hyundai', tier: 'a', models: ['R80W-9S','R110W-9S','HX85WA'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['WX148','WX188'] },
+        { name: 'Liebherr', tier: 'a', models: ['A 910 Compact','A 912 Compact'] },
+        { name: 'Mecalac', tier: 'b', models: ['8MCR','10MCR','12MTX'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EWR130E','EW160E'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX100W-3','DX117W-3'] },
+      ]},
+      { sc: 'M314 / M313', range: '13–15 t', competitors: [
+        { name: 'Hyundai', tier: 'a', models: ['R130W-9S','R140W-9S','HX130WA'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['WX145','WX148','WX160'] },
+        { name: 'Komatsu', tier: 'a', models: ['PW148-11','PW160-11'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EW160E','EW180E','EW160F'] },
+        { name: 'Liebherr', tier: 'a', models: ['A 912 Compact','A 914 Compact','A 918 Compact'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX140W-5','DX140W-7'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX140W-6','ZX145W-6'] },
+        { name: 'Mecalac', tier: 'b', models: ['12MXT','14MXT'] },
+        { name: 'Atlas-Weyhausen', tier: 'b', models: ['1404','1605'] },
+      ]},
+      { sc: 'M315 / M316', range: '15–17 t', competitors: [
+        { name: 'Hitachi', tier: 'a', models: ['ZX155W-6','ZX165W-6','ZX180W-6'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['WX165','WX185','WX210'] },
+        { name: 'Liebherr', tier: 'a', models: ['A 918 Compact','A 918','A 920'] },
+        { name: 'Komatsu', tier: 'a', models: ['PW160-11','PW180-11'] },
+        { name: 'Hyundai', tier: 'a', models: ['R160W-9S','HX160WA','R180W-9S'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EW180E','EW200E','EW180F'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX165W-5','DX170W-5','DX180W-5'] },
+        { name: 'JCB', tier: 'a', models: ['JS175W','JS180W','JS190W'] },
+        { name: 'Mecalac', tier: 'b', models: ['15MXT','16MXT'] },
+      ]},
+      { sc: 'M318 / M320 / M319', range: '17–20 t', competitors: [
+        { name: 'Liebherr', tier: 'a', models: ['A 920','A 922','A 924','A 922 Litronic'] },
+        { name: 'Hyundai', tier: 'a', models: ['R180W-9S','R200W-9S','HX200WA'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['WX210','WX228'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EW200E','EW205E','EW220E'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX190W-7','DX210W-7'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX190W-6','ZX200W-6'] },
+        { name: 'Komatsu', tier: 'a', models: ['PW180-11','PW198-11'] },
+        { name: 'JCB', tier: 'a', models: ['JS200W','JS210W','JS220W'] },
+        { name: 'Gradall', tier: 'b', models: ['XL4300V','XL5200V'] },
+      ]},
+      { sc: 'M322 / M323', range: '20 t & over', competitors: [
+        { name: 'Liebherr', tier: 'a', models: ['A 924','A 926','A 930','A 936 Litronic'] },
+        { name: 'Hitachi', tier: 'a', models: ['ZX210W-6','ZX230W-6'] },
+        { name: 'Doosan / Develon', tier: 'a', models: ['DX210W-7','DX235W-5'] },
+        { name: 'Hyundai', tier: 'a', models: ['R220W-9S','HX220WA'] },
+        { name: 'Volvo CE', tier: 'a', models: ['EW220E','EW230E','EW240E'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['WX228','WX238'] },
+        { name: 'JCB', tier: 'a', models: ['JS235W','JS260W'] },
+        { name: 'Gradall', tier: 'b', models: ['XL5300IV','XL5320IV','XL7300V'] },
+        { name: 'Terex', tier: 'b', models: ['TW85','TW110','TW170','TW190'] },
+      ]},
+    ]
+  },
+  {
+    id: 'wd',
+    family: 'Wheel Dozers',
+    label: 'Wheel Dozers',
+    classes: [
+      { sc: '824 / 814', range: 'small–mid', competitors: [
+        { name: 'Volvo CE', tier: 'a', models: ['BL60B','BL71B'] },
+        { name: 'Komatsu', tier: 'a', models: ['WD600-6','D86E-22'] },
+        { name: 'Case / New Holland', tier: 'a', models: ['WD1903'] },
+      ]},
+      { sc: '854 / 834', range: 'large', competitors: [
+        { name: 'Komatsu', tier: 'a', models: ['D155WX-8','D155W-6','D275WX-3'] },
+        { name: 'Volvo CE', tier: 'a', models: ['BL71B'] },
+        { name: 'Kawasaki / KCM', tier: 'b', models: ['KLD85Z-3','KLD90Z-3'] },
+      ]},
+    ]
+  }
+];
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+const nav = document.getElementById('catNav');
+const sections = document.getElementById('sections');
+
+DATA.forEach((cat, ci) => {
+  // Nav button
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn' + (ci === 0 ? ' active' : '');
+  btn.textContent = cat.label;
+  btn.onclick = () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.category-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('sec-' + cat.id).classList.add('active');
+  };
+  nav.appendChild(btn);
+
+  // Section
+  const sec = document.createElement('div');
+  sec.className = 'category-section' + (ci === 0 ? ' active' : '');
+  sec.id = 'sec-' + cat.id;
+
+  const title = document.createElement('div');
+  title.className = 'section-title';
+  title.innerHTML = cat.family + ' <span class="fam-tag">CAT size classes</span>';
+  sec.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.className = 'sc-grid';
+
+  cat.classes.forEach(sc => {
+    const tierA = sc.competitors.filter(c => c.tier === 'a');
+    const tierB = sc.competitors.filter(c => c.tier === 'b');
+    const total = sc.competitors.length;
+    const countClass = total <= 3 ? 'low' : total <= 6 ? 'mid' : 'high';
+
+    const row = document.createElement('div');
+    row.className = 'sc-row';
+
+    // Pills for header (just names, no models)
+    const pills = sc.competitors.map(c =>
+      `<span class="mfr-pill ${c.tier === 'a' ? 'tier-a' : 'tier-b'}">${c.name.split(' ')[0].split('/')[0].trim()}</span>`
+    ).join('');
+
+    row.innerHTML = `
+      <div class="sc-head" onclick="this.closest('.sc-row').classList.toggle('open')">
+        <div class="sc-meta">
+          <span class="sc-name">${sc.sc}</span>
+          <span class="sc-range">${sc.range}</span>
+        </div>
+        <div class="sc-mfr-pills">${pills}</div>
+        <span class="sc-toggle ccount ${countClass}">${total} competitors ▸</span>
+      </div>
+      <div class="sc-body"></div>
+    `;
+
+    // Build expanded card grid lazily
+    const body = row.querySelector('.sc-body');
+    let built = false;
+    row.querySelector('.sc-head').addEventListener('click', () => {
+      if (built) return;
+      built = true;
+      const mfrGrid = document.createElement('div');
+      mfrGrid.className = 'mfr-grid';
+      sc.competitors.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'mfr-card' + (c.tier === 'a' ? ' primary' : '');
+        card.innerHTML = `
+          <div class="mfr-card-name">${c.name}</div>
+          <div class="model-tags">${c.models.map(m => `<span class="model-tag">${m}</span>`).join('')}</div>
+        `;
+        mfrGrid.appendChild(card);
+      });
+      body.appendChild(mfrGrid);
+    });
+
+    grid.appendChild(row);
+  });
+
+  sec.appendChild(grid);
+  sections.appendChild(sec);
+});
+</script>
+</body>
+</html>
